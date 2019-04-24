@@ -1,0 +1,227 @@
+swagger: "2.0"
+info:
+  description: "API for managing business transactions"
+  version: "1.0.0"
+  title: "Interlinked Open API"
+  contact:
+    email: "andrey.orlov@spherity.com"
+host: "qbc4x8ankc.execute-api.eu-central-1.amazonaws.com"
+basePath: "/Prod"
+tags:
+- name: "Business Transactions"
+  description: "Everything about business transactions"
+schemes:
+- "https"
+paths:
+  /biz-txs:
+    post:
+      tags:
+      - "Business Transactions"
+      summary: "Create new business transactions"
+      description: ""
+      operationId: "createBizTxs"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "header"
+        name: "Authorization"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "body"
+        description: "Biz transactions that needs to be saved"
+        required: true
+        schema:
+          $ref: "#/definitions/BizTxs"
+      responses:
+        200:
+          description: "Successfull operation"
+          schema:
+            $ref: "#/definitions/CreateBizTxsResponse"
+        403:
+          description: "Access token is invalid."
+          schema:
+            $ref: "#/definitions/ApiError"
+        422:
+          description: "Base claim with Sender and Recipient as payload items was not found"
+          schema:
+            $ref: "#/definitions/ApiError"
+        500:
+          description: "Server Error"
+          schema:
+            $ref: "#/definitions/ApiError"
+    get:
+      tags:
+      - "Business Transactions"
+      summary: "Get business transactions"
+      description: ""
+      operationId: "getBizTxs"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "header"
+        name: "Authorization"
+        required: true
+        type: "string"
+      - name: "sender"
+        in: "query"
+        description: "find using sender filter"
+        required: false
+        type: "string"
+      - name: "recipient"
+        in: "query"
+        description: "find using recipient filter"
+        required: false
+        type: "string"
+      responses:
+        200:
+          description: "Successfull operation"
+          schema:
+            $ref: "#/definitions/GetBizTxsResponse"
+        403:
+          description: "Access token is invalid."
+          schema:
+            $ref: "#/definitions/ApiError"
+        500:
+          description: "Server Error"
+          schema:
+            $ref: "#/definitions/ApiError"
+    put:
+      tags:
+      - "Business Transactions"
+      summary: "Update business transactions"
+      description: ""
+      operationId: "updateBizTxs"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "header"
+        name: "Authorization"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "body"
+        description: "Transactions that needs to be updated"
+        required: true
+        schema:
+          $ref: "#/definitions/BizTxs"
+      responses:
+        200:
+          description: "Successfull operation"
+          schema:
+            $ref: "#/definitions/CreatedBizTx"
+        500:
+          description: "Server Error"
+          schema:
+            $ref: "#/definitions/ApiError"
+definitions:
+  BizTxs:
+    type: "object"
+    properties:
+      bizTxs:
+        type: "array"
+        items:
+          $ref: "#/definitions/BizTx"
+    xml:
+      name: "BizTxs"
+  BizTx:
+    type: "object"
+    properties:
+      hol:
+        type: "string"
+      did:
+        type: "string"
+      name:
+        type: "string"
+      claims:
+        type: "array"
+        items: 
+          $ref: "#/definitions/Claim"
+    xml:
+      name: "BizTx"
+  Claim:
+    type: "object"
+    properties:
+      did:
+        type: "string"
+      payload:
+        type: "array"
+        items:
+          $ref: "#/definitions/Item"
+      sub:
+        type: "string"
+      iss: 
+        type: "string"
+      exp: 
+        type: "integer"
+    xml:
+      name: "BizTx"
+  Item:
+    type: "object"
+    properties:
+      type:
+        type: "string"
+      value:
+        type: "string"
+    xml:
+      name: "BizTx"
+  CreateBizTxsResponse:
+    type: "array"
+    items:
+      $ref: "#/definitions/CreatedBizTx"
+  CreatedBizTx:
+    type: "object"
+    properties:
+      _id:
+        type: "string"
+      did:
+        type: "string"
+      sender:
+        type: "string"
+      recipient:
+        type: "string"
+  GetBizTxsResponse:
+    type: "array"
+    items:
+      $ref: "#/definitions/GetBizTx"
+  GetBizTx:
+    type: "object"
+    properties:
+      _id:
+        type: "string"
+      did:
+        type: "string"
+      sender:
+        type: "string"
+      recipient:
+        type: "string"
+      senderDidOwner:
+        type: "string"
+      recipientDidOwner:
+        type: "string"
+      senderDidName:
+        type: "string"
+      senderDidOwnerName:
+        type: "string"
+      recipientDidName:
+        type: "string"
+      recipientDidOwnerName:
+        type: "string"
+  ApiError:
+    type: "object"
+    properties:
+      errorType:
+        type: "string"
+      errorMessage:
+        type: "string"
+      innerException:
+        type: "object"
+externalDocs:
+  description: "Spherity website"
+  url: "https://spherity.com/"
