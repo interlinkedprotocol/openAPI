@@ -115,77 +115,141 @@ paths:
         200:
           description: "Successfull operation"
           schema:
-            $ref: "#/definitions/CreatedBizTx"
+            $ref: "#/definitions/CreateBizTxsResponse"
+        500:
+          description: "Server Error"
+          schema:
+            $ref: "#/definitions/ApiError"
+    delete:
+      tags:
+      - "Business Transactions"
+      summary: "Delete business transactions"
+      description: ""
+      operationId: "deleteBizTxs"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "header"
+        name: "Authorization"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "body"
+        description: "Transactions ids that needs to be deleted"
+        required: true
+        schema:
+          type: "array"
+          items:
+            type: "string"
+      responses:
+        200:
+          description: "Successfull operation"
         500:
           description: "Server Error"
           schema:
             $ref: "#/definitions/ApiError"
 definitions:
   BizTxs:
-    type: "object"
-    properties:
-      bizTxs:
-        type: "array"
-        items:
-          $ref: "#/definitions/BizTx"
+    type: "array"
+    items:
+      $ref: "#/definitions/BizTx"
     xml:
       name: "BizTxs"
   BizTx:
     type: "object"
+    required:
+    - hol
+    - claims
+    - did
     properties:
       hol:
         type: "string"
       did:
         type: "string"
-      name:
+      exp:
+        type: "integer"
+      aud:
         type: "string"
       claims:
         type: "array"
-        items: 
+        items:
           $ref: "#/definitions/Claim"
     xml:
       name: "BizTx"
   Claim:
     type: "object"
+    required:
+    - payload
     properties:
       did:
         type: "string"
-      payload:
-        type: "array"
-        items:
-          $ref: "#/definitions/Item"
+      exp:
+        type: "integer"
       sub:
         type: "string"
-      iss: 
+      aud:
         type: "string"
-      exp: 
-        type: "integer"
+      readers:
+        type: "array"
+        items:
+          type: "string"
+      payload:
+        type: "object"
     xml:
-      name: "BizTx"
-  Item:
-    type: "object"
-    properties:
-      type:
-        type: "string"
-      value:
-        type: "string"
-    xml:
-      name: "BizTx"
+      name: "Claim"
   CreateBizTxsResponse:
     type: "array"
     items:
       $ref: "#/definitions/CreatedBizTx"
   CreatedBizTx:
-    type: "object"
-    properties:
-      _id:
-        type: "string"
-      did:
-        type: "string"
-      sender:
-        type: "string"
-      recipient:
-        type: "string"
+    allOf:
+    - $ref: "#/definitions/BizTx"
+    - type: "object"
+      properties:
+        _id:
+          type: "string"
+        createdAt:
+          type: "integer"
+        status:
+          type: "string"
+        claims:
+          type: "array"
+          items:
+            $ref: "#/definitions/CreatedBizTxClaim"
+  CreatedBizTxClaim:
+    allOf:
+    - $ref: "#/definitions/Claim"
+    - type: "object"
+      properties:
+        _id:
+          type: "string"
+        signature:
+          type: "string"
+        data:
+          type: "string"
+        sub:
+          type: "string"
+        iat:
+          type: "integer"
+        exp:
+          type: "integer"
+        iss:
+          type: "string"
+        issName:
+          type: "string"
+        did:
+          type: "string"
+        payload:
+          type: "object"
+        algInfo:
+          type: "object"
+          properties:
+            alg:
+              type: string
+            typ:
+              type: string
   GetBizTxsResponse:
     type: "array"
     items:
@@ -195,19 +259,25 @@ definitions:
     properties:
       _id:
         type: "string"
+      createdAt:
+        type: "integer"
       did:
         type: "string"
       sender:
         type: "string"
-      recipient:
+      senderDid:
         type: "string"
       senderDidOwner:
-        type: "string"
-      recipientDidOwner:
         type: "string"
       senderDidName:
         type: "string"
       senderDidOwnerName:
+        type: "string"
+      recipient:
+        type: "string"
+      recipientDid:
+        type: "string"
+      recipientDidOwner:
         type: "string"
       recipientDidName:
         type: "string"
